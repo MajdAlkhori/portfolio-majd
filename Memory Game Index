@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RecallIt — Memory Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --green: #1a6b3a;
+    --green-dark: #14532d;
+    --gold: #c9a84c;
+    --gold-dark: #b8973d;
+    --cream: #f5f0e8;
+    --cream-card: #ede7d6;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+  }
+  #root { min-height: 100vh; }
+  .app-shell {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+  .top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+  }
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .brand span { color: var(--green); }
+  .back-link {
+    font-size: 0.78rem;
+    color: var(--green);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+  }
+  .back-link:hover { color: var(--ink); }
+
+  .game-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin: 0 0 4px;
+  }
+  .game-sub {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 0 0 28px;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* progress dots - Gestalt: common region + similarity to show 3-step flow */
+  .progress-track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .progress-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #d8d0bc;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .progress-dot.active { background: var(--green); transform: scale(1.3); }
+  .progress-dot.done { background: var(--gold); }
+  .progress-line { flex: 1; height: 1px; background: #d8d0bc; }
+
+  .panel {
+    background: #fff;
+    border: 1px solid #e3dcc9;
+    border-radius: 10px;
+    padding: 32px;
+  }
+
+  /* SETUP SCREEN */
+  .setup-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--green);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .option-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .option-pill {
+    border: 1.5px solid #ddd3b8;
+    background: var(--cream-card);
+    color: var(--muted);
+    padding: 9px 20px;
+    border-radius: 24px;
+    font-size: 0.86rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .option-pill:hover { border-color: var(--green); }
+  .option-pill.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+  .pace-help {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: -18px;
+    margin-bottom: 24px;
+  }
+  .length-stepper {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--cream-card);
+    border-radius: 10px;
+    padding: 14px 20px;
+    width: fit-content;
+    margin-bottom: 28px;
+  }
+  .stepper-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: var(--green);
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .stepper-btn:disabled { background: #c9c2ae; cursor: not-allowed; }
+  .stepper-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    min-width: 70px;
+    text-align: center;
+  }
+  .best-score-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .best-score-note b { color: var(--gold-dark); }
+
+  .btn-primary {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    padding: 13px 34px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--green);
+    border: 1.5px solid var(--green);
+    padding: 11px 28px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { background: var(--cream-card); }
+
+  /* MEMORIZE SCREEN */
+  .phase-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--green);
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .phase-instruction {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-bottom: 26px;
+  }
+  .digit-display-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 30px 0 36px;
+    flex-wrap: wrap;
+  }
+  .digit-cell {
+    width: 52px; height: 64px;
+    border-radius: 8px;
+    border: 2px solid #ddd3b8;
+    background: var(--cream-card);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #c9c2ae;
+    transition: all 0.25s ease;
+  }
+  .digit-cell.lit {
+    border-color: var(--green);
+    background: var(--green);
+    color: #fff;
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(26,107,58,0.3);
+  }
+  .digit-cell.passed {
+    border-color: var(--gold);
+    color: var(--gold-dark);
+    background: #fdf7ea;
+  }
+  .timer-track {
+    height: 5px;
+    background: #e9e3d2;
+    border-radius: 3px;
+    overflow: hidden;
+    max-width: 280px;
+    margin: 0 auto 30px;
+  }
+  .timer-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 3px;
+    transition: width 0.1s linear;
+  }
+
+  /* RECALL SCREEN */
+  .recall-cells {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 26px 0 30px;
+    flex-wrap: wrap;
+  }
+  .recall-cell {
+    width: 52px; height: 64px;
+    border-radius: 8px;
+    border: 2px solid #ddd3b8;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .recall-cell.filled { border-color: var(--gold); background: #fdf7ea; }
+  .recall-cell.cursor { border-color: var(--green); box-shadow: 0 0 0 3px rgba(26,107,58,0.15); }
+  .recall-cell.correct { border-color: var(--green); background: #eaf2ec; color: var(--green); }
+  .recall-cell.wrong { border-color: #c0392b; background: #fbeae8; color: #c0392b; }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 280px;
+    margin: 0 auto 26px;
+  }
+  .keypad-key {
+    background: var(--cream-card);
+    border: none;
+    border-radius: 8px;
+    padding: 16px 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .keypad-key:hover { background: #e3dcc4; }
+  .keypad-key.wide { grid-column: span 1; background: transparent; color: var(--muted); font-size: 0.85rem; font-family: 'Poppins', sans-serif; }
+  .keypad-key.del:hover { background: #f5dcd6; color: #c0392b; }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .status-row b { color: var(--green); }
+
+  .center-col { display: flex; flex-direction: column; align-items: center; }
+
+  /* RESULT SCREEN */
+  .result-wrap { text-align: center; padding: 10px 0; }
+  .result-badge {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--gold-dark);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .result-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    margin: 0 0 18px;
+  }
+  .result-stat-row {
+    display: flex;
+    justify-content: center;
+    gap: 36px;
+    margin-bottom: 26px;
+    flex-wrap: wrap;
+  }
+  .result-stat .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--green);
+  }
+  .result-stat .lbl {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .result-sequence {
+    background: var(--cream-card);
+    border-radius: 8px;
+    padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    margin-bottom: 26px;
+    color: var(--ink);
+  }
+  .btn-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 36px;
+    font-size: 0.75rem;
+    color: #a8a08c;
+  }
+
+  @media (max-width: 480px) {
+    .digit-cell, .recall-cell { width: 42px; height: 54px; font-size: 1.3rem; }
+    .panel { padding: 22px 18px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback } = React;
+
+const LEVELS = [
+  { id: 'easy', label: 'Easy', speedMs: 1000 },
+  { id: 'pro', label: 'Pro', speedMs: 700 },
+  { id: 'expert', label: 'Expert', speedMs: 450 },
+];
+
+const LENGTH_MIN = 4;
+const LENGTH_MAX = 10;
+
+function generateSequence(length) {
+  const seq = [];
+  for (let i = 0; i < length; i++) {
+    seq.push(Math.floor(Math.random() * 10));
+  }
+  return seq;
+}
+
+function loadBest() {
+  try {
+    const v = window.localStorage ? null : null; // disabled per artifact rules; using state only
+  } catch (e) {}
+  return null;
+}
+
+function TopNav() {
+  return (
+    <div className="top-nav">
+      <a className="brand" href="../index.html">Majd<span>.</span>Al Khori</a>
+      <a className="back-link" href="../index.html">&larr; Back to Portfolio</a>
+    </div>
+  );
+}
+
+function ProgressTrack({ phase }) {
+  const steps = ['setup', 'memorize', 'recall', 'result'];
+  // collapse memorize+recall visually into one "play" dot per requirement step structure,
+  // but keep distinct internal phases
+  const display = ['setup', 'play', 'result'];
+  const currentDisplay = phase === 'setup' ? 0 : (phase === 'result' ? 2 : 1);
+  return (
+    <div className="progress-track">
+      {display.map((d, i) => (
+        <React.Fragment key={d}>
+          <div className={
+            "progress-dot " +
+            (i < currentDisplay ? "done" : (i === currentDisplay ? "active" : ""))
+          }></div>
+          {i < display.length - 1 && <div className="progress-line"></div>}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+function SetupScreen({ level, setLevel, length, setLength, bestScore, onStart }) {
+  return (
+    <div className="panel">
+      <p className="setup-label">01 — Choose your level</p>
+      <div className="option-row">
+        {LEVELS.map(l => (
+          <button
+            key={l.id}
+            className={"option-pill" + (level.id === l.id ? " active" : "")}
+            onClick={() => setLevel(l)}
+          >
+            {l.label}
+          </button>
+        ))}
+      </div>
+      <p className="pace-help">
+        {level.id === 'easy' && "Digits appear slowly — good for getting comfortable with the game."}
+        {level.id === 'pro' && "A steady pace that still gives you a moment to focus on each digit."}
+        {level.id === 'expert' && "Digits move quickly — built for players chasing a high score."}
+      </p>
+
+      <p className="setup-label">02 — Sequence length</p>
+      <div className="length-stepper">
+        <button
+          className="stepper-btn"
+          disabled={length <= LENGTH_MIN}
+          onClick={() => setLength(Math.max(LENGTH_MIN, length - 1))}
+        >&minus;</button>
+        <span className="stepper-val">{length} digits</span>
+        <button
+          className="stepper-btn"
+          disabled={length >= LENGTH_MAX}
+          onClick={() => setLength(Math.min(LENGTH_MAX, length + 1))}
+        >+</button>
+      </div>
+
+      {bestScore !== null && (
+        <p className="best-score-note">Your best so far: <b>{bestScore} digits recalled</b></p>
+      )}
+
+      <button className="btn-primary" onClick={onStart}>Start Game</button>
+    </div>
+  );
+}
+
+function MemorizeScreen({ sequence, speedMs, onDone }) {
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let i = -1;
+    let raf;
+    let startTime;
+
+    function tick(timestamp) {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      setProgress(Math.min(100, (elapsed / speedMs) * 100));
+      if (elapsed < speedMs) {
+        raf = requestAnimationFrame(tick);
+      }
+    }
+
+    function step() {
+      i++;
+      setActiveIndex(i);
+      setProgress(0);
+      startTime = null;
+      raf = requestAnimationFrame(tick);
+      if (i < sequence.length - 1) {
+        setTimeout(step, speedMs);
+      } else {
+        setTimeout(() => {
+          onDone();
+        }, speedMs);
+      }
+    }
+    step();
+
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line
+  }, []);
+
+  return (
+    <div className="panel center-col">
+      <p className="phase-label">Memorize</p>
+      <p className="phase-instruction">Watch closely — the sequence will disappear.</p>
+      <div className="timer-track">
+        <div className="timer-fill" style={{ width: progress + '%' }}></div>
+      </div>
+      <div className="digit-display-row">
+        {sequence.map((d, idx) => (
+          <div
+            key={idx}
+            className={
+              "digit-cell" +
+              (idx === activeIndex ? " lit" : "") +
+              (idx < activeIndex ? " passed" : "")
+            }
+          >
+            {idx <= activeIndex ? d : ''}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RecallScreen({ sequence, onSubmit }) {
+  const [entered, setEntered] = useState([]);
+
+  const handleKey = useCallback((digit) => {
+    if (entered.length >= sequence.length) return;
+    setEntered(prev => [...prev, digit]);
+  }, [entered, sequence.length]);
+
+  const handleDelete = useCallback(() => {
+    setEntered(prev => prev.slice(0, -1));
+  }, []);
+
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key >= '0' && e.key <= '9') handleKey(parseInt(e.key, 10));
+      if (e.key === 'Backspace') handleDelete();
+      if (e.key === 'Enter' && entered.length === sequence.length) {
+        onSubmit(entered);
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleKey, handleDelete, entered, sequence.length, onSubmit]);
+
+  const canSubmit = entered.length === sequence.length;
+
+  return (
+    <div className="panel center-col">
+      <p className="phase-label">Recall</p>
+      <p className="phase-instruction">Type the sequence back, in the same order.</p>
+
+      <div className="status-row">
+        <span>Entered: <b>{entered.length}/{sequence.length}</b></span>
+      </div>
+
+      <div className="recall-cells">
+        {sequence.map((_, idx) => (
+          <div
+            key={idx}
+            className={
+              "recall-cell" +
+              (idx < entered.length ? " filled" : "") +
+              (idx === entered.length ? " cursor" : "")
+            }
+          >
+            {idx < entered.length ? entered[idx] : ''}
+          </div>
+        ))}
+      </div>
+
+      <div className="keypad">
+        {[1,2,3,4,5,6,7,8,9].map(n => (
+          <button key={n} className="keypad-key" onClick={() => handleKey(n)}>{n}</button>
+        ))}
+        <button className="keypad-key del" onClick={handleDelete}>&larr;</button>
+        <button className="keypad-key" onClick={() => handleKey(0)}>0</button>
+        <button
+          className="keypad-key wide"
+          onClick={() => canSubmit && onSubmit(entered)}
+          style={{ color: canSubmit ? '#1a6b3a' : '#c9c2ae', fontWeight: 600 }}
+        >
+          Enter
+        </button>
+      </div>
+
+      <button
+        className="btn-primary"
+        disabled={!canSubmit}
+        style={{ opacity: canSubmit ? 1 : 0.4, cursor: canSubmit ? 'pointer' : 'not-allowed' }}
+        onClick={() => canSubmit && onSubmit(entered)}
+      >
+        Submit
+      </button>
+    </div>
+  );
+}
+
+function ResultScreen({ sequence, entered, length, bestScore, onPlayAgain, onChangeSetup }) {
+  const correctCount = entered.reduce((acc, d, i) => acc + (d === sequence[i] ? 1 : 0), 0);
+  const isPerfect = correctCount === sequence.length;
+  const isNewBest = bestScore === null || (isPerfect && length > bestScore);
+
+  return (
+    <div className="panel result-wrap">
+      <p className="result-badge">{isPerfect ? (isNewBest ? "New Best!" : "Sequence Complete") : "Nice Try"}</p>
+      <h2 className="result-headline">
+        {isPerfect ? "You recalled it perfectly." : `You got ${correctCount} of ${sequence.length} right.`}
+      </h2>
+
+      <div className="result-stat-row">
+        <div className="result-stat">
+          <div className="num">{sequence.length}</div>
+          <div className="lbl">Sequence Length</div>
+        </div>
+        <div className="result-stat">
+          <div className="num">{correctCount}</div>
+          <div className="lbl">Digits Correct</div>
+        </div>
+      </div>
+
+      <p style={{fontSize:'0.78rem', color:'#999', marginBottom:'10px'}}>Correct sequence was:</p>
+      <div className="result-sequence">
+        {sequence.map((d, i) => (
+          <span key={i} style={{ color: entered[i] === d ? '#1a6b3a' : '#c0392b' }}>{d}</span>
+        ))}
+      </div>
+
+      <div className="btn-row">
+        <button className="btn-primary" onClick={onPlayAgain}>Play Again</button>
+        <button className="btn-secondary" onClick={onChangeSetup}>Change Settings</button>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [phase, setPhase] = useState('setup'); // setup | memorize | recall | result
+  const [level, setLevel] = useState(LEVELS[1]);
+  const [length, setLength] = useState(6);
+  const [sequence, setSequence] = useState([]);
+  const [entered, setEntered] = useState([]);
+  const [bestScore, setBestScore] = useState(null);
+
+  function startGame() {
+    setSequence(generateSequence(length));
+    setEntered([]);
+    setPhase('memorize');
+  }
+
+  function onMemorizeDone() {
+    setPhase('recall');
+  }
+
+  function onRecallSubmit(answer) {
+    setEntered(answer);
+    const correctCount = answer.reduce((acc, d, i) => acc + (d === sequence[i] ? 1 : 0), 0);
+    if (correctCount === sequence.length) {
+      if (bestScore === null || length > bestScore) setBestScore(length);
+    }
+    setPhase('result');
+  }
+
+  function playAgain() {
+    setSequence(generateSequence(length));
+    setEntered([]);
+    setPhase('memorize');
+  }
+
+  function backToSetup() {
+    setPhase('setup');
+  }
+
+  return (
+    <div className="app-shell">
+      <TopNav />
+      <h1 className="game-title">RecallIt</h1>
+      <p className="game-sub">
+        A short-term memory game. Watch a sequence of digits appear one at a time, then type it back
+        from memory. Choose a level and a length to match your own pace.
+      </p>
+
+      <ProgressTrack phase={phase} />
+
+      {phase === 'setup' && (
+        <SetupScreen
+          level={level} setLevel={setLevel}
+          length={length} setLength={setLength}
+          bestScore={bestScore}
+          onStart={startGame}
+        />
+      )}
+      {phase === 'memorize' && (
+        <MemorizeScreen sequence={sequence} speedMs={level.speedMs} onDone={onMemorizeDone} />
+      )}
+      {phase === 'recall' && (
+        <RecallScreen sequence={sequence} onSubmit={onRecallSubmit} />
+      )}
+      {phase === 'result' && (
+        <ResultScreen
+          sequence={sequence} entered={entered} length={length}
+          bestScore={bestScore}
+          onPlayAgain={playAgain}
+          onChangeSetup={backToSetup}
+        />
+      )}
+
+      <p className="footer-note">RecallIt &middot; SEG3125 Assignment 3 &middot; Majd Al Khori &middot; University of Ottawa</p>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
