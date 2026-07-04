@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PitchStore — Football Gear</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --green:#1a6b3a;--green-dark:#14532d;--green-light:#eaf2ec;
+  --gold:#c9a84c;--gold-dark:#b8973d;--gold-light:#fdf7ea;
+  --cream:#f5f0e8;--cream-card:#ede7d6;
+  --ink:#1a1a1a;--muted:#6b6b6b;--border:#e3dcc9;
+  --red:#c0392b;--red-light:#fbeae8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);line-height:1.5;}
+a{text-decoration:none;color:inherit;}
+button{font-family:'Poppins',sans-serif;cursor:pointer;}
+input,select,textarea{font-family:'Poppins',sans-serif;}
+
+/* NAV */
+.nav{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;gap:20px;}
+.nav-brand{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--ink);}
+.nav-brand span{color:var(--green);}
+.nav-links{display:flex;gap:6px;margin-left:auto;}
+.nav-btn{background:none;border:none;padding:8px 14px;font-size:0.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;border-radius:4px;}
+.nav-btn:hover{color:var(--green);background:var(--green-light);}
+.nav-btn.active{color:var(--green);font-weight:600;}
+.cart-btn{background:var(--green);color:#fff;border:none;padding:8px 16px;border-radius:4px;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.cart-btn:hover{background:var(--green-dark);}
+.cart-badge{background:var(--gold);color:#fff;border-radius:10px;padding:1px 7px;font-size:0.7rem;font-weight:700;}
+.back-link{font-size:0.75rem;color:var(--muted);padding:8px 0;white-space:nowrap;}
+.back-link:hover{color:var(--green);}
+
+/* HERO BANNER */
+.hero{background:var(--ink);color:#fff;padding:52px 20px;}
+.hero-inner{max-width:1100px;margin:0 auto;}
+.hero-eyebrow{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--gold);font-weight:600;margin-bottom:10px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:2.4rem;line-height:1.2;margin-bottom:14px;}
+.hero h1 span{color:var(--gold);}
+.hero p{color:rgba(255,255,255,0.6);max-width:420px;font-size:0.95rem;line-height:1.7;margin-bottom:22px;}
+.hero-cta{display:inline-block;background:var(--gold);color:var(--ink);padding:11px 28px;font-weight:700;font-size:0.88rem;letter-spacing:0.04em;border-radius:4px;}
+.hero-cta:hover{background:var(--gold-dark);}
+.deal-strip{background:var(--gold);color:var(--ink);text-align:center;padding:8px;font-size:0.82rem;font-weight:600;letter-spacing:0.04em;}
+
+/* LAYOUT */
+.page-wrap{max-width:1100px;margin:0 auto;padding:32px 20px;}
+.shop-layout{display:flex;gap:28px;align-items:flex-start;}
+.sidebar{width:240px;flex-shrink:0;}
+.product-area{flex:1;min-width:0;}
+
+/* SIDEBAR FILTERS */
+.filter-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px;}
+.filter-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);font-weight:600;margin-bottom:12px;}
+.filter-option{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;}
+.filter-option input{accent-color:var(--green);width:15px;height:15px;cursor:pointer;}
+.filter-option label{font-size:0.88rem;cursor:pointer;}
+.filter-option label span{color:var(--muted);font-size:0.78rem;margin-left:4px;}
+.price-inputs{display:flex;gap:8px;align-items:center;}
+.price-inputs input{flex:1;border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:0.85rem;width:100%;}
+.clear-btn{background:none;border:none;color:var(--muted);font-size:0.75rem;text-decoration:underline;padding:4px 0;margin-top:8px;}
+.clear-btn:hover{color:var(--green);}
+.active-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.filter-tag{background:var(--green-light);border:1px solid var(--green);color:var(--green);padding:3px 10px;border-radius:12px;font-size:0.75rem;font-weight:500;display:flex;align-items:center;gap:5px;}
+.filter-tag button{background:none;border:none;color:var(--green);font-size:0.9rem;padding:0;line-height:1;}
+
+/* PRODUCT GRID */
+.results-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.results-count{font-size:0.85rem;color:var(--muted);}
+.sort-select{border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:0.82rem;background:#fff;color:var(--ink);}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;}
+.product-card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:box-shadow 0.2s;}
+.product-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.09);}
+.product-img{aspect-ratio:1;background:var(--cream-card);display:flex;align-items:center;justify-content:center;font-size:2.6rem;position:relative;}
+.sale-badge{position:absolute;top:8px;left:8px;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;}
+.product-body{padding:12px;}
+.product-brand{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:2px;}
+.product-name{font-size:0.92rem;font-weight:600;margin-bottom:4px;}
+.product-cat{font-size:0.75rem;color:var(--muted);margin-bottom:8px;}
+.price-row{display:flex;align-items:center;gap:8px;}
+.price-now{font-size:1.05rem;font-weight:700;color:var(--ink);}
+.price-was{font-size:0.8rem;color:var(--muted);text-decoration:line-through;}
+.add-btn{width:100%;background:var(--green);color:#fff;border:none;padding:9px;font-size:0.82rem;font-weight:600;border-radius:4px;margin-top:10px;}
+.add-btn:hover{background:var(--green-dark);}
+.no-results{text-align:center;padding:60px 20px;color:var(--muted);}
+.no-results p{font-size:1rem;margin-top:10px;}
+
+/* PRODUCT DETAIL */
+.detail-layout{display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap;}
+.detail-img-box{flex:0 0 320px;aspect-ratio:1;background:var(--cream-card);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:5rem;}
+.detail-info{flex:1;min-width:240px;}
+.detail-brand{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px;}
+.detail-name{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:10px;}
+.detail-price-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.detail-price{font-size:1.4rem;font-weight:700;}
+.detail-was{font-size:1rem;color:var(--muted);text-decoration:line-through;}
+.detail-desc{font-size:0.92rem;color:var(--muted);line-height:1.7;margin-bottom:20px;}
+.detail-attrs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+.attr-chip{background:var(--cream-card);border:1px solid var(--border);border-radius:4px;padding:4px 12px;font-size:0.8rem;}
+.size-label{font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.size-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;}
+.size-opt{border:1.5px solid var(--border);background:#fff;border-radius:4px;padding:6px 14px;font-size:0.82rem;cursor:pointer;}
+.size-opt.active{border-color:var(--green);background:var(--green-light);color:var(--green);font-weight:600;}
+.detail-add-btn{background:var(--green);color:#fff;border:none;padding:13px 32px;font-size:0.92rem;font-weight:600;border-radius:6px;width:100%;}
+.detail-add-btn:hover{background:var(--green-dark);}
+.back-to-shop{background:none;border:none;color:var(--green);font-size:0.85rem;margin-bottom:20px;display:flex;align-items:center;gap:4px;}
+
+/* CART */
+.cart-empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.cart-item{display:flex;gap:16px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;}
+.cart-item-img{width:60px;height:60px;background:var(--cream-card);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
+.cart-item-info{flex:1;}
+.cart-item-name{font-weight:600;font-size:0.92rem;}
+.cart-item-sub{font-size:0.78rem;color:var(--muted);}
+.cart-item-price{font-weight:700;font-size:0.95rem;white-space:nowrap;}
+.qty-ctrl{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.qty-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;line-height:1;}
+.qty-btn:hover{background:var(--green-light);border-color:var(--green);}
+.cart-qty{font-size:0.88rem;font-weight:600;min-width:20px;text-align:center;}
+.remove-btn{background:none;border:none;color:var(--muted);font-size:1.1rem;padding:4px;}
+.remove-btn:hover{color:var(--red);}
+.cart-summary{background:#fff;border:1px solid var(--border);border-radius:8px;padding:20px;margin-top:20px;}
+.cart-summary-row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.9rem;}
+.cart-summary-row.total{font-weight:700;font-size:1rem;padding-top:10px;border-top:1px solid var(--border);margin-top:10px;}
+.checkout-btn{width:100%;background:var(--gold);color:var(--ink);border:none;padding:13px;font-size:0.95rem;font-weight:700;border-radius:6px;margin-top:14px;letter-spacing:0.03em;}
+.checkout-btn:hover{background:var(--gold-dark);}
+
+/* CHECKOUT STEPS */
+.step-track{display:flex;align-items:center;margin-bottom:32px;}
+.step-item{display:flex;flex-direction:column;align-items:center;flex:1;}
+.step-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:600;color:var(--muted);}
+.step-circle.done{background:var(--gold);border-color:var(--gold);color:#fff;}
+.step-circle.active{background:var(--green);border-color:var(--green);color:#fff;}
+.step-label-txt{font-size:0.7rem;color:var(--muted);margin-top:4px;text-align:center;}
+.step-line{flex:1;height:2px;background:var(--border);}
+.step-line.done{background:var(--gold);}
+.checkout-panel{background:#fff;border:1px solid var(--border);border-radius:8px;padding:28px;max-width:600px;margin:0 auto;}
+.form-row{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+.form-group{flex:1;min-width:180px;}
+.form-group label{display:block;font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:5px;}
+.form-group input,.form-group select{width:100%;border:1px solid var(--border);border-radius:4px;padding:9px 11px;font-size:0.88rem;}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(26,107,58,0.12);}
+.section-heading{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:18px;margin-top:8px;}
+.btn-next{background:var(--green);color:#fff;border:none;padding:12px 30px;font-size:0.9rem;font-weight:600;border-radius:6px;margin-top:8px;}
+.btn-next:hover{background:var(--green-dark);}
+.btn-back{background:none;border:1px solid var(--border);color:var(--muted);padding:10px 22px;font-size:0.88rem;border-radius:6px;margin-right:10px;}
+.btn-back:hover{border-color:var(--green);color:var(--green);}
+.order-line{display:flex;justify-content:space-between;font-size:0.88rem;padding:6px 0;border-bottom:1px solid var(--border);}
+.confirm-box{text-align:center;padding:30px 0;}
+.confirm-icon{font-size:3rem;margin-bottom:14px;}
+.confirm-box h2{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:8px;}
+.confirm-box p{color:var(--muted);font-size:0.9rem;max-width:360px;margin:0 auto 20px;}
+.order-num{background:var(--gold-light);border:1px solid var(--gold);border-radius:6px;padding:10px 18px;font-size:0.88rem;font-weight:600;color:var(--gold-dark);display:inline-block;margin-bottom:20px;}
+
+/* SURVEY */
+.survey-panel{background:#fff;border:1px solid var(--border);border-radius:8px;padding:32px;max-width:560px;margin:0 auto;}
+.survey-intro{color:var(--muted);font-size:0.92rem;line-height:1.7;margin-bottom:24px;}
+.survey-q{margin-bottom:22px;}
+.survey-q .q-text{font-weight:600;font-size:0.92rem;margin-bottom:10px;}
+.star-row{display:flex;gap:6px;}
+.star{font-size:1.5rem;cursor:pointer;color:#ddd;transition:color 0.1s;}
+.star.filled{color:var(--gold);}
+.radio-group{display:flex;flex-direction:column;gap:8px;}
+.radio-opt{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;}
+.radio-opt input{accent-color:var(--green);}
+.survey-textarea{width:100%;border:1px solid var(--border);border-radius:4px;padding:10px;font-size:0.88rem;resize:vertical;min-height:90px;}
+.survey-textarea:focus{outline:none;border-color:var(--green);}
+.survey-submit{background:var(--green);color:#fff;border:none;padding:12px 30px;font-size:0.9rem;font-weight:600;border-radius:6px;}
+.survey-thanks{text-align:center;padding:20px 0;}
+.survey-thanks h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:8px;}
+.survey-thanks p{color:var(--muted);font-size:0.88rem;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:24px;background:var(--ink);color:#fff;padding:12px 20px;border-radius:6px;font-size:0.88rem;z-index:999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 18px rgba(0,0,0,0.2);animation:fadeIn 0.25s ease;}
+.toast-icon{font-size:1rem;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* UTILS */
+.page-title{font-family:'Playfair Display',serif;font-size:1.7rem;margin-bottom:6px;}
+.page-sub{color:var(--muted);font-size:0.9rem;margin-bottom:24px;}
+.section-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.13em;color:var(--green);font-weight:600;margin-bottom:4px;}
+.divider{border:none;border-top:1px solid var(--border);margin:28px 0;}
+
+@media(max-width:700px){
+  .shop-layout{flex-direction:column;}
+  .sidebar{width:100%;}
+  .detail-layout{flex-direction:column;}
+  .detail-img-box{flex:none;width:100%;}
+  .hero h1{font-size:1.8rem;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useRef,useCallback} = React;
+
+/* ─── DATA ─── */
+const PRODUCTS = [
+  {id:1,name:"Phantom Elite FG",brand:"Nike",cat:"Boots",emoji:"👟",color:"Black",sizes:["7","8","9","10","11"],price:220,was:null,desc:"Precision fit boot with adaptive traction for firm ground. Engineered for explosive acceleration and pinpoint passing."},
+  {id:2,name:"Predator Pro",brand:"Adidas",cat:"Boots",emoji:"⚽",color:"Red",sizes:["7","8","9","10"],price:180,was:240,desc:"Classic Predator zones give you unmatched ball control in every touch. On sale while stocks last."},
+  {id:3,name:"Superfly VIII",brand:"Nike",cat:"Boots",emoji:"🥿",color:"Blue",sizes:["6","7","8","9"],price:199,was:null,desc:"Speed meets control — lightweight knit upper with a carbon fibre soleplate for explosive direction changes."},
+  {id:4,name:"King Pro FG",brand:"Puma",cat:"Boots",emoji:"👟",color:"White",sizes:["8","9","10","11","12"],price:150,was:185,desc:"A modern take on Puma's iconic King silhouette. Supple leather upper, classic ground feel."},
+  {id:5,name:"Home Kit 2025",brand:"Nike",cat:"Jerseys",emoji:"👕",color:"White",sizes:["S","M","L","XL"],price:99,was:null,desc:"Authentic replica home jersey with breathable Dri-FIT fabric. Wear it on and off the pitch."},
+  {id:6,name:"Away Kit 2025",brand:"Adidas",cat:"Jerseys",emoji:"👕",color:"Blue",sizes:["S","M","L","XL","XXL"],price:89,was:115,desc:"Bold away strip in our signature blue. HEAT.RDY technology keeps you cool in tough conditions."},
+  {id:7,name:"Training Top",brand:"Puma",cat:"Jerseys",emoji:"🎽",color:"Green",sizes:["S","M","L","XL"],price:55,was:null,desc:"Everyday training top with dryCELL moisture management. A staple for serious players."},
+  {id:8,name:"Pro Shield Guards",brand:"Nike",cat:"Shin Guards",emoji:"🛡️",color:"Black",sizes:["S","M","L"],price:35,was:null,desc:"Anatomically shaped shields with ankle support. Stays in place through the full 90 minutes."},
+  {id:9,name:"Shin Air Lite",brand:"Adidas",cat:"Shin Guards",emoji:"🛡️",color:"White",sizes:["S","M","L","XL"],price:28,was:38,desc:"Ultra-light slip-in guards with perforated shell for ventilation. Barely notice they're there."},
+  {id:10,name:"Keepersport GK Pro",brand:"Puma",cat:"Gloves",emoji:"🥊",color:"Black",sizes:["7","8","9","10"],price:65,was:null,desc:"Negative cut latex palm for superior grip and a close ball feel. Built for serious goalkeepers."},
+  {id:11,name:"GK React II",brand:"Nike",cat:"Gloves",emoji:"🥊",color:"Blue",sizes:["7","8","9","10","11"],price:58,was:75,desc:"Palm foam engineered for wet and dry conditions. Backed up by a strong finger support system."},
+  {id:12,name:"Team Bag 35L",brand:"Adidas",cat:"Bags",emoji:"🎒",color:"Black",sizes:["One Size"],price:72,was:null,desc:"Dedicated boot compartment, separate ball net, and padded laptop sleeve. Ready for match day and training."},
+  {id:13,name:"Pro Kit Bag",brand:"Nike",cat:"Bags",emoji:"👜",color:"Blue",sizes:["One Size"],price:85,was:110,desc:"Spacious main compartment, side water bottle pockets, and reflective branding. Carries everything you need."},
+  {id:14,name:"Speedframe FG",brand:"Puma",cat:"Boots",emoji:"👟",color:"Yellow",sizes:["6","7","8","9","10"],price:130,was:null,desc:"Split outsole for explosive speed off the mark. Perfect for wide players and quick wingers."},
+  {id:15,name:"Club Jersey",brand:"Puma",cat:"Jerseys",emoji:"👕",color:"Red",sizes:["S","M","L","XL","XXL"],price:48,was:null,desc:"Standard club jersey for training and casual wear. dryCELL fabric, relaxed fit."},
+  {id:16,name:"Lite Guard",brand:"Nike",cat:"Shin Guards",emoji:"🛡️",color:"Green",sizes:["S","M","L"],price:22,was:null,desc:"Entry-level guard for youth and recreational players. Comfortable, lightweight, easy to fit."},
+];
+
+const CATEGORIES = ["Boots","Jerseys","Shin Guards","Gloves","Bags"];
+const BRANDS = ["Nike","Adidas","Puma"];
+const COLORS = ["Black","White","Blue","Red","Green","Yellow"];
+const PRICE_RANGES = [{label:"Under $50",min:0,max:50},{label:"$50–$100",min:50,max:100},{label:"$100–$200",min:100,max:200},{label:"Over $200",min:200,max:9999}];
+
+/* ─── TOAST ─── */
+function Toast({msg,onDone}){
+  useEffect(()=>{const t=setTimeout(onDone,2200);return()=>clearTimeout(t);},[]);
+  return <div className="toast"><span className="toast-icon">✓</span>{msg}</div>;
+}
+
+/* ─── NAV ─── */
+function Nav({page,setPage,cartCount}){
+  return(
+    <nav className="nav">
+      <div className="nav-inner">
+        <span className="nav-brand" style={{cursor:'pointer'}} onClick={()=>setPage('home')}>Pitch<span>Store</span></span>
+        <a className="back-link" href="../index.html">← Portfolio</a>
+        <div className="nav-links">
+          <button className={"nav-btn"+(page==='shop'?' active':'')} onClick={()=>setPage('shop')}>Shop</button>
+          <button className={"nav-btn"+(page==='survey'?' active':'')} onClick={()=>setPage('survey')}>Survey</button>
+          <button className="cart-btn" onClick={()=>setPage('cart')}>
+            🛒 Cart {cartCount>0&&<span className="cart-badge">{cartCount}</span>}
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+/* ─── HOME / HERO ─── */
+function HomePage({setPage}){
+  const deals=PRODUCTS.filter(p=>p.was);
+  return(
+    <>
+      <div className="deal-strip">🔥 End of Season Sale — Up to 40% off selected boots and jerseys. Shop now!</div>
+      <div className="hero">
+        <div className="hero-inner">
+          <p className="hero-eyebrow">The Footballer's Store</p>
+          <h1>Gear that keeps up<br/>with your <span>game.</span></h1>
+          <p>Professional-grade boots, jerseys, and accessories — picked for players who take the game seriously. Free shipping on orders over $100.</p>
+          <span className="hero-cta" style={{cursor:'pointer'}} onClick={()=>setPage('shop')}>Shop the Collection →</span>
+        </div>
+      </div>
+      <div className="page-wrap">
+        <p className="section-label">On Sale Now</p>
+        <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'1.4rem',marginBottom:'18px'}}>Don't miss these deals</h2>
+        <div className="product-grid" style={{marginBottom:'40px'}}>
+          {deals.slice(0,4).map(p=><ProductCard key={p.id} p={p} setPage={setPage} />)}
+        </div>
+        <hr className="divider"/>
+        <div style={{textAlign:'center',padding:'28px 0'}}>
+          <p style={{color:'var(--muted)',fontSize:'0.92rem',marginBottom:'16px'}}>Loved shopping with us? We'd love to hear what you think.</p>
+          <button className="nav-btn" style={{border:'1px solid var(--green)',color:'var(--green)',borderRadius:'4px'}} onClick={()=>setPage('survey')}>Share your feedback →</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ─── PRODUCT CARD (shared) ─── */
+function ProductCard({p,setPage,onAdd}){
+  const discount=p.was?Math.round((1-p.price/p.was)*100):null;
+  return(
+    <div className="product-card">
+      <div className="product-img" onClick={()=>setPage({view:'detail',id:p.id})} style={{cursor:'pointer'}}>
+        {discount&&<span className="sale-badge">-{discount}%</span>}
+        <span style={{fontSize:'2.8rem'}}>{p.emoji}</span>
+      </div>
+      <div className="product-body">
+        <div className="product-brand">{p.brand}</div>
+        <div className="product-name" onClick={()=>setPage({view:'detail',id:p.id})} style={{cursor:'pointer'}}>{p.name}</div>
+        <div className="product-cat">{p.cat}</div>
+        <div className="price-row">
+          <span className="price-now">${p.price}</span>
+          {p.was&&<span className="price-was">${p.was}</span>}
+        </div>
+        <button className="add-btn" onClick={()=>onAdd&&onAdd(p)}>Add to Cart</button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── SHOP PAGE (faceted search) ─── */
+function ShopPage({setPage,onAdd}){
+  const [cats,setCats]=useState([]);
+  const [brands,setBrands]=useState([]);
+  const [colors,setColors]=useState([]);
+  const [priceRange,setPriceRange]=useState(null);
+  const [minPrice,setMinPrice]=useState('');
+  const [maxPrice,setMaxPrice]=useState('');
+  const [sort,setSort]=useState('default');
+
+  function toggle(arr,setArr,val){
+    setArr(arr.includes(val)?arr.filter(x=>x!==val):[...arr,val]);
+  }
+
+  const filtered=PRODUCTS.filter(p=>{
+    if(cats.length&&!cats.includes(p.cat))return false;
+    if(brands.length&&!brands.includes(p.brand))return false;
+    if(colors.length&&!colors.includes(p.color))return false;
+    if(priceRange&&(p.price<priceRange.min||p.price>priceRange.max))return false;
+    if(minPrice!==''&&p.price<parseFloat(minPrice))return false;
+    if(maxPrice!==''&&p.price>parseFloat(maxPrice))return false;
+    return true;
+  });
+
+  const sorted=[...filtered].sort((a,b)=>{
+    if(sort==='price-asc')return a.price-b.price;
+    if(sort==='price-desc')return b.price-a.price;
+    if(sort==='name')return a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  const activeTags=[
+    ...cats.map(c=>({label:c,remove:()=>toggle(cats,setCats,c)})),
+    ...brands.map(b=>({label:b,remove:()=>toggle(brands,setBrands,b)})),
+    ...colors.map(c=>({label:c,remove:()=>toggle(colors,setColors,c)})),
+    ...(priceRange?[{label:priceRange.label,remove:()=>setPriceRange(null)}]:[]),
+  ];
+
+  return(
+    <div className="page-wrap">
+      <p className="section-label">03 — Shop</p>
+      <h1 className="page-title">All Products</h1>
+      <p className="page-sub">Browse {PRODUCTS.length} products. Use the filters to find exactly what you need.</p>
+      {activeTags.length>0&&(
+        <div className="active-filters">
+          {activeTags.map((t,i)=>(
+            <span key={i} className="filter-tag">
+              {t.label}<button onClick={t.remove}>×</button>
+            </span>
+          ))}
+          <button className="clear-btn" onClick={()=>{setCats([]);setBrands([]);setColors([]);setPriceRange(null);setMinPrice('');setMaxPrice('');}}>Clear all</button>
+        </div>
+      )}
+      <div className="shop-layout">
+        <aside className="sidebar">
+          <div className="filter-card">
+            <div className="filter-title">Category</div>
+            {CATEGORIES.map(c=>(
+              <label key={c} className="filter-option">
+                <input type="checkbox" checked={cats.includes(c)} onChange={()=>toggle(cats,setCats,c)}/>
+                <span>{c} <span>({PRODUCTS.filter(p=>p.cat===c).length})</span></span>
+              </label>
+            ))}
+          </div>
+          <div className="filter-card">
+            <div className="filter-title">Brand</div>
+            {BRANDS.map(b=>(
+              <label key={b} className="filter-option">
+                <input type="checkbox" checked={brands.includes(b)} onChange={()=>toggle(brands,setBrands,b)}/>
+                <span>{b} <span>({PRODUCTS.filter(p=>p.brand===b).length})</span></span>
+              </label>
+            ))}
+          </div>
+          <div className="filter-card">
+            <div className="filter-title">Price Range</div>
+            {PRICE_RANGES.map(r=>(
+              <label key={r.label} className="filter-option">
+                <input type="radio" name="price" checked={priceRange?.label===r.label} onChange={()=>setPriceRange(r)}/>
+                <span>{r.label}</span>
+              </label>
+            ))}
+            <div style={{marginTop:'10px'}}>
+              <div className="filter-title" style={{marginBottom:'8px'}}>Custom Range</div>
+              <div className="price-inputs">
+                <input type="number" placeholder="Min" value={minPrice} onChange={e=>setMinPrice(e.target.value)}/>
+                <span style={{color:'var(--muted)'}}>–</span>
+                <input type="number" placeholder="Max" value={maxPrice} onChange={e=>setMaxPrice(e.target.value)}/>
+              </div>
+            </div>
+          </div>
+          <div className="filter-card">
+            <div className="filter-title">Color</div>
+            {COLORS.map(c=>(
+              <label key={c} className="filter-option">
+                <input type="checkbox" checked={colors.includes(c)} onChange={()=>toggle(colors,setColors,c)}/>
+                <span>{c}</span>
+              </label>
+            ))}
+          </div>
+          <button className="clear-btn" onClick={()=>{setCats([]);setBrands([]);setColors([]);setPriceRange(null);setMinPrice('');setMaxPrice('');}}>Clear all filters</button>
+        </aside>
+        <div className="product-area">
+          <div className="results-bar">
+            <span className="results-count">Showing <b>{sorted.length}</b> of {PRODUCTS.length} products</span>
+            <select className="sort-select" value={sort} onChange={e=>setSort(e.target.value)}>
+              <option value="default">Sort: Default</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </div>
+          {sorted.length===0?(
+            <div className="no-results">
+              <div style={{fontSize:'2.5rem'}}>🔍</div>
+              <p>No products match your filters. Try removing some to see more results.</p>
+            </div>
+          ):(
+            <div className="product-grid">
+              {sorted.map(p=><ProductCard key={p.id} p={p} setPage={setPage} onAdd={onAdd}/>)}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── PRODUCT DETAIL ─── */
+function DetailPage({id,setPage,onAdd}){
+  const p=PRODUCTS.find(x=>x.id===id);
+  const [selectedSize,setSelectedSize]=useState(null);
+  const [sizeError,setSizeError]=useState(false);
+  if(!p)return<div className="page-wrap"><p>Product not found.</p></div>;
+  const discount=p.was?Math.round((1-p.price/p.was)*100):null;
+  function handleAdd(){
+    if(p.sizes.length>1&&!selectedSize){setSizeError(true);return;}
+    onAdd(p,selectedSize||p.sizes[0]);
+  }
+  return(
+    <div className="page-wrap">
+      <button className="back-to-shop" onClick={()=>setPage('shop')}>← Back to all products</button>
+      <div className="detail-layout">
+        <div className="detail-img-box">{p.emoji}</div>
+        <div className="detail-info">
+          <div className="detail-brand">{p.brand}</div>
+          <h1 className="detail-name">{p.name}</h1>
+          <div className="detail-price-row">
+            <span className="detail-price">${p.price}</span>
+            {p.was&&<span className="detail-was">${p.was}</span>}
+            {discount&&<span className="sale-badge">-{discount}%</span>}
+          </div>
+          <p className="detail-desc">{p.desc}</p>
+          <div className="detail-attrs">
+            <span className="attr-chip">Category: {p.cat}</span>
+            <span className="attr-chip">Color: {p.color}</span>
+            <span className="attr-chip">Brand: {p.brand}</span>
+          </div>
+          {p.sizes.length>1&&(
+            <>
+              <div className="size-label">Select Size {sizeError&&<span style={{color:'var(--red)',fontSize:'0.75rem',fontWeight:400}}>— please choose a size</span>}</div>
+              <div className="size-grid">
+                {p.sizes.map(s=>(
+                  <button key={s} className={"size-opt"+(selectedSize===s?' active':'')} onClick={()=>{setSelectedSize(s);setSizeError(false);}}>{s}</button>
+                ))}
+              </div>
+            </>
+          )}
+          <button className="detail-add-btn" onClick={handleAdd}>Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── CART PAGE ─── */
+function CartPage({cart,setCart,setPage}){
+  function updateQty(idx,delta){
+    setCart(prev=>{
+      const next=[...prev];
+      next[idx]={...next[idx],qty:next[idx].qty+delta};
+      if(next[idx].qty<=0)next.splice(idx,1);
+      return next;
+    });
+  }
+  function remove(idx){setCart(prev=>prev.filter((_,i)=>i!==idx));}
+  const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping=subtotal>=100?0:9.99;
+  const total=subtotal+shipping;
+  if(cart.length===0)return(
+    <div className="page-wrap">
+      <div className="cart-empty">
+        <div style={{fontSize:'3rem'}}>🛒</div>
+        <h2 style={{fontFamily:'Playfair Display,serif',marginTop:'12px'}}>Your cart is empty</h2>
+        <p style={{marginTop:'8px',fontSize:'0.9rem'}}>Head to the shop to add some gear.</p>
+        <button className="btn-next" style={{marginTop:'18px'}} onClick={()=>setPage('shop')}>Browse Products</button>
+      </div>
+    </div>
+  );
+  return(
+    <div className="page-wrap" style={{maxWidth:'720px',margin:'0 auto'}}>
+      <h1 className="page-title">Your Cart</h1>
+      <p className="page-sub">{cart.reduce((s,i)=>s+i.qty,0)} item(s)</p>
+      {cart.map((item,idx)=>(
+        <div key={idx} className="cart-item">
+          <div className="cart-item-img">{PRODUCTS.find(p=>p.id===item.id)?.emoji}</div>
+          <div className="cart-item-info">
+            <div className="cart-item-name">{item.name}</div>
+            <div className="cart-item-sub">{item.brand} · Size: {item.size}</div>
+            <div className="qty-ctrl">
+              <button className="qty-btn" onClick={()=>updateQty(idx,-1)}>−</button>
+              <span className="cart-qty">{item.qty}</span>
+              <button className="qty-btn" onClick={()=>updateQty(idx,1)}>+</button>
+            </div>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:'8px'}}>
+            <span className="cart-item-price">${(item.price*item.qty).toFixed(2)}</span>
+            <button className="remove-btn" onClick={()=>remove(idx)}>✕</button>
+          </div>
+        </div>
+      ))}
+      <div className="cart-summary">
+        <div className="cart-summary-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+        <div className="cart-summary-row"><span>Shipping</span><span>{shipping===0?'Free':('$'+shipping.toFixed(2))}</span></div>
+        {shipping>0&&<p style={{fontSize:'0.78rem',color:'var(--muted)'}}>Add ${(100-subtotal).toFixed(2)} more for free shipping.</p>}
+        <div className="cart-summary-row total"><span>Total</span><span>${total.toFixed(2)}</span></div>
+        <button className="checkout-btn" onClick={()=>setPage('checkout')}>Proceed to Checkout →</button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── CHECKOUT ─── */
+function CheckoutPage({cart,setCart,setPage,showToast}){
+  const [step,setStep]=useState(0); // 0=info 1=payment 2=review 3=confirm
+  const [form,setForm]=useState({
+    firstName:'',lastName:'',email:'',address:'',city:'',postal:'',country:'Canada',
+    card:'',expiry:'',cvv:'',name:''
+  });
+  const upd=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
+  const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping=subtotal>=100?0:9.99;
+  const total=subtotal+shipping;
+  const orderNum='PS-'+Math.floor(100000+Math.random()*900000);
+
+  const steps=['Info','Payment','Review','Confirmed'];
+
+  function nextStep(){
+    if(step<3)setStep(s=>s+1);
+    if(step===2){setCart([]);}
+  }
+
+  return(
+    <div className="page-wrap">
+      <div className="step-track">
+        {steps.map((s,i)=>(
+          <React.Fragment key={s}>
+            <div className="step-item">
+              <div className={"step-circle"+(i<step?' done':i===step?' active':'')}>
+                {i<step?'✓':i+1}
+              </div>
+              <div className="step-label-txt">{s}</div>
+            </div>
+            {i<steps.length-1&&<div className={"step-line"+(i<step?' done':'')}></div>}
+          </React.Fragment>
+        ))}
+      </div>
+
+      {step===0&&(
+        <div className="checkout-panel">
+          <h2 className="section-heading">Delivery Information</h2>
+          <div className="form-row">
+            <div className="form-group"><label>First Name</label><input value={form.firstName} onChange={upd('firstName')} placeholder="Majd"/></div>
+            <div className="form-group"><label>Last Name</label><input value={form.lastName} onChange={upd('lastName')} placeholder="Al Khori"/></div>
+          </div>
+          <div className="form-row"><div className="form-group"><label>Email</label><input type="email" value={form.email} onChange={upd('email')} placeholder="you@example.com"/></div></div>
+          <div className="form-row"><div className="form-group"><label>Street Address</label><input value={form.address} onChange={upd('address')} placeholder="123 Main St"/></div></div>
+          <div className="form-row">
+            <div className="form-group"><label>City</label><input value={form.city} onChange={upd('city')} placeholder="Ottawa"/></div>
+            <div className="form-group"><label>Postal Code</label><input value={form.postal} onChange={upd('postal')} placeholder="K1P 1A4"/></div>
+          </div>
+          <div className="form-row">
+            <div className="form-group"><label>Country</label>
+              <select value={form.country} onChange={upd('country')}>
+                <option>Canada</option><option>United States</option><option>United Kingdom</option>
+              </select>
+            </div>
+          </div>
+          <button className="btn-next" onClick={nextStep}>Continue to Payment →</button>
+        </div>
+      )}
+
+      {step===1&&(
+        <div className="checkout-panel">
+          <h2 className="section-heading">Payment Details</h2>
+          <div className="form-row"><div className="form-group"><label>Name on Card</label><input value={form.name} onChange={upd('name')} placeholder="Majd Al Khori"/></div></div>
+          <div className="form-row"><div className="form-group"><label>Card Number</label><input value={form.card} onChange={upd('card')} placeholder="•••• •••• •••• ••••" maxLength={19}/></div></div>
+          <div className="form-row">
+            <div className="form-group"><label>Expiry</label><input value={form.expiry} onChange={upd('expiry')} placeholder="MM/YY" maxLength={5}/></div>
+            <div className="form-group"><label>CVV</label><input value={form.cvv} onChange={upd('cvv')} placeholder="•••" maxLength={4}/></div>
+          </div>
+          <div style={{background:'var(--green-light)',border:'1px solid var(--green)',borderRadius:'6px',padding:'10px 14px',fontSize:'0.8rem',color:'var(--green)',marginBottom:'16px'}}>
+            🔒 Your payment information is secure. This is a prototype — no real charges will be made.
+          </div>
+          <button className="btn-back" onClick={()=>setStep(0)}>← Back</button>
+          <button className="btn-next" onClick={nextStep}>Review Order →</button>
+        </div>
+      )}
+
+      {step===2&&(
+        <div className="checkout-panel">
+          <h2 className="section-heading">Review Your Order</h2>
+          {cart.map((item,i)=>(
+            <div key={i} className="order-line"><span>{item.name} × {item.qty} (Size {item.size})</span><span>${(item.price*item.qty).toFixed(2)}</span></div>
+          ))}
+          <div className="order-line"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+          <div className="order-line"><span>Shipping</span><span>{shipping===0?'Free':'$'+shipping.toFixed(2)}</span></div>
+          <div className="order-line" style={{fontWeight:700,fontSize:'1rem',borderBottom:'none',paddingTop:'8px'}}><span>Total</span><span>${total.toFixed(2)}</span></div>
+          <div style={{margin:'18px 0 0',fontSize:'0.85rem',color:'var(--muted)'}}>Shipping to: {form.address}, {form.city}, {form.country}</div>
+          <div style={{marginTop:'18px'}}>
+            <button className="btn-back" onClick={()=>setStep(1)}>← Back</button>
+            <button className="btn-next" onClick={nextStep}>Place Order →</button>
+          </div>
+        </div>
+      )}
+
+      {step===3&&(
+        <div className="checkout-panel">
+          <div className="confirm-box">
+            <div className="confirm-icon">✅</div>
+            <h2>Order Confirmed!</h2>
+            <p>Thank you, {form.firstName}. Your gear is on its way. You'll receive a confirmation at {form.email||'your email'}.</p>
+            <div className="order-num">Order {orderNum}</div>
+            <div style={{display:'flex',gap:'12px',justifyContent:'center',flexWrap:'wrap'}}>
+              <button className="btn-next" onClick={()=>setPage('home')}>Back to Home</button>
+              <button className="btn-back" onClick={()=>setPage('survey')}>Leave a Review</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── SURVEY ─── */
+function SurveyPage(){
+  const [rating,setRating]=useState(0);
+  const [hover,setHover]=useState(0);
+  const [ease,setEase]=useState('');
+  const [recommend,setRecommend]=useState('');
+  const [comment,setComment]=useState('');
+  const [submitted,setSubmitted]=useState(false);
+  if(submitted)return(
+    <div className="page-wrap">
+      <div className="survey-panel">
+        <div className="survey-thanks">
+          <div style={{fontSize:'2.5rem',marginBottom:'14px'}}>💚</div>
+          <h3>Thank you for your feedback!</h3>
+          <p>Your thoughts help us make PitchStore better for every player. We genuinely appreciate you taking the time.</p>
+        </div>
+      </div>
+    </div>
+  );
+  return(
+    <div className="page-wrap">
+      <div className="survey-panel">
+        <p className="section-label">Your Opinion Matters</p>
+        <h1 className="page-title">How was your experience?</h1>
+        <p className="survey-intro">It takes less than two minutes, and your honest feedback helps us improve every part of PitchStore — from the products we stock to the checkout experience. We read every response. ⚽</p>
+
+        <div className="survey-q">
+          <div className="q-text">Overall, how would you rate your experience?</div>
+          <div className="star-row">
+            {[1,2,3,4,5].map(n=>(
+              <span key={n} className={"star"+(n<=(hover||rating)?' filled':'')}
+                onClick={()=>setRating(n)} onMouseEnter={()=>setHover(n)} onMouseLeave={()=>setHover(0)}>★</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="survey-q">
+          <div className="q-text">How easy was it to find what you were looking for?</div>
+          <div className="radio-group">
+            {['Very easy','Easy','Neutral','Difficult','Very difficult'].map(o=>(
+              <label key={o} className="radio-opt">
+                <input type="radio" name="ease" value={o} checked={ease===o} onChange={()=>setEase(o)}/>{o}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="survey-q">
+          <div className="q-text">Would you recommend PitchStore to a teammate?</div>
+          <div className="radio-group">
+            {['Definitely yes','Probably yes','Not sure','Probably not','No'].map(o=>(
+              <label key={o} className="radio-opt">
+                <input type="radio" name="recommend" value={o} checked={recommend===o} onChange={()=>setRecommend(o)}/>{o}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="survey-q">
+          <div className="q-text">Anything else you'd like us to know?</div>
+          <textarea className="survey-textarea" placeholder="Tell us what worked well, what didn't, or anything we should add..." value={comment} onChange={e=>setComment(e.target.value)}/>
+        </div>
+
+        <button className="survey-submit" onClick={()=>setSubmitted(true)}>Submit Feedback</button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── APP ─── */
+function App(){
+  const [page,setPage]=useState('home');
+  const [cart,setCart]=useState([]);
+  const [toast,setToast]=useState(null);
+
+  function addToCart(p,size){
+    setCart(prev=>{
+      const existing=prev.findIndex(i=>i.id===p.id&&i.size===size);
+      if(existing>=0){
+        const next=[...prev];
+        next[existing]={...next[existing],qty:next[existing].qty+1};
+        return next;
+      }
+      return[...prev,{id:p.id,name:p.name,brand:p.brand,price:p.price,size:size||p.sizes[0],qty:1}];
+    });
+    setToast(p.name+' added to cart');
+  }
+
+  const cartCount=cart.reduce((s,i)=>s+i.qty,0);
+
+  return(
+    <>
+      <Nav page={typeof page==='string'?page:page.view} setPage={setPage} cartCount={cartCount}/>
+      {page==='home'&&<HomePage setPage={setPage}/>}
+      {page==='shop'&&<ShopPage setPage={setPage} onAdd={(p)=>addToCart(p)}/>}
+      {typeof page==='object'&&page.view==='detail'&&<DetailPage id={page.id} setPage={setPage} onAdd={addToCart}/>}
+      {page==='cart'&&<CartPage cart={cart} setCart={setCart} setPage={setPage}/>}
+      {page==='checkout'&&<CheckoutPage cart={cart} setCart={setCart} setPage={setPage} showToast={setToast}/>}
+      {page==='survey'&&<SurveyPage/>}
+      {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
